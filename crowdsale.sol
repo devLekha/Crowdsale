@@ -309,24 +309,23 @@ contract Crowdsale {
   // Address where funds are collected
   address public wallet;
   uint256 public cap;
-  // How many token units a buyer gets per wei
-  uint256 public pre_sale_rate;
-  uint256 public seed_sale_rate;
+  // according to current price of ether 4200000000000wei = $0.01 and 8400000000000wei = $0.02
+  uint256 public pre_sale_rate = 4200000000000;
+  uint256 public seed_sale_rate = 8400000000000;
   uint256 public newPrice;
   // Amount of wei raised
   uint256 public weiRaised;
   uint256  preSaleSupply = 30000000000000000000000000;
   uint256 seedSaleSupply  = 50000000000000000000000000;
- 
+ address owner;
  
   event TokenPurchase(address indexed purchaser, uint256 value, uint256 amount);
 
-  constructor(uint256 _pre_sale_rate, uint256 _seed_sale_rate, address _wallet, IERC20 _token) {
+  constructor(address _wallet, IERC20 _token) {
     require(_wallet != address(0));
-    pre_sale_rate = _pre_sale_rate;
-    seed_sale_rate = _seed_sale_rate;
     wallet = _wallet;
     token = _token;
+    owner = msg.sender;
   }
 
   fallback() external payable {
@@ -346,8 +345,10 @@ contract Crowdsale {
       emit TokenPurchase(msg.sender, msg.value, tokens);
       payable(wallet).transfer(msg.value);
   }
-
+  
+   //setPrice function for dynamic allocation 
    function setPrice(uint256 _newPrice) public {
+       require(msg.sender == owner, "price can be set by owner only");
       newPrice = _newPrice;
      }
 
